@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Crossword": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Projects\\crossword\\wordlist.txt\""
+    }
+  }
+}
