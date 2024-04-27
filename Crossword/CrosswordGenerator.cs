@@ -12,6 +12,8 @@ namespace Crossword
 
         private const char Empty = '-';
 
+        private const char Black = '#';
+
         private WordFilter WordFilter { get; }
 
         private Random Random { get; }
@@ -22,10 +24,11 @@ namespace Crossword
             Random = new Random();
         }
 
-        public char[][]? GenerateCrossword()
+        public char[][] GenerateCrossword(params SquareValue[] existing)
         {
             var result = new char[Size][];
 
+            // Fill empty.
             for (int i = 0; i < Size; i++)
             {
                 result[i] = new char[Size];
@@ -34,6 +37,29 @@ namespace Crossword
                 {
                     result[i][j] = Empty;
                 }
+            }
+            
+            // Fill existing values.
+            for (int i = 0; i < existing.Length; i++)
+            {
+                var squareValue = existing[i];
+
+                if (squareValue.Coordinate.I > Size)
+                {
+                    throw new Exception($"Provided i coordinate {squareValue.Coordinate.I} is greater than height {Size}.");
+                }
+
+                if (squareValue.Coordinate.J > Size)
+                {
+                    throw new Exception($"Provided j coordinate {squareValue.Coordinate.J} is greater than height {Size}.");
+                }
+
+                if (squareValue.Value != Black && squareValue.Value != Empty && (squareValue.Value < 'A' && squareValue.Value > 'Z'))
+                {
+                    throw new Exception($"Provided value for {squareValue.Coordinate.I},{squareValue.Coordinate.J}: {squareValue.Value} is not valid.");
+                }
+
+                result[squareValue.Coordinate.I][squareValue.Coordinate.J] = squareValue.Value;
             }
 
             var firstWords = ShuffleWords(WordFilter.GetMatchingWords(new LetterCriterion[0]));
