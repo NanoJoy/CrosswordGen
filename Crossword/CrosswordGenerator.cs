@@ -57,15 +57,18 @@ namespace Crossword
 
         private bool FillGrid(char[][] puzzle)
         {
-            var (i, j) = GetNextEmptyCoordinates(puzzle);
+            var nextEmptyCoordinates = GetNextEmptyCoordinates(puzzle);
 
-            if (i == -1)
+            if (nextEmptyCoordinates == null)
             {
                 return AreLastWordsValid(puzzle);
             }
 
-            var verticalCriteria = GetVerticalCriteria(puzzle, i, j);
-            var horizontalCriteria = GetHorizontalCriteria(puzzle, i, j);
+            var i = nextEmptyCoordinates.I;
+            var j = nextEmptyCoordinates.J;
+
+            var verticalCriteria = GetVerticalCriteria(puzzle, (int)i, (int)j);
+            var horizontalCriteria = GetHorizontalCriteria(puzzle, (int)i, (int)j);
 
             var doHorizontal = horizontalCriteria.Length >= verticalCriteria.Length;
             var criteria = doHorizontal ? horizontalCriteria : verticalCriteria;
@@ -103,29 +106,29 @@ namespace Crossword
             return WordFilter.HasMatchingWords(verticalCriteria) && WordFilter.HasMatchingWords(horizontalCriteria);
         }
 
-        private static (int i, int j)[] WriteWord(char[][] puzzle, int i, int j, bool doHorizontal, string word)
+        private static Coordinate[] WriteWord(char[][] puzzle, uint i, uint j, bool doHorizontal, string word)
         {
-            var changes = new List<(int i, int j)>();
+            var changes = new List<Coordinate>();
 
             if (doHorizontal)
             {
-                for (int x = 0; x < Size; x++)
+                for (uint x = 0; x < Size; x++)
                 {
                     if (puzzle[i][x] == Empty)
                     {
-                        puzzle[i][x] = word[x];
-                        changes.Add((i, x));
+                        puzzle[i][x] = word[(int)x];
+                        changes.Add(new Coordinate(i, x));
                     }
                 }
             }
             else
             {
-                for (int y = 0; y < Size; y++)
+                for (uint y = 0; y < Size; y++)
                 {
                     if (puzzle[y][j] == Empty)
                     {
-                        puzzle[y][j] = word[y];
-                        changes.Add((y, j));
+                        puzzle[y][j] = word[(int)y];
+                        changes.Add(new Coordinate(y, j));
                     }
                 }
             }
@@ -137,11 +140,11 @@ namespace Crossword
             return changes.ToArray();
         }
 
-        private static void UnwriteWord(char[][] puzzle, (int i, int j)[] spaces)
+        private static void UnwriteWord(char[][] puzzle, Coordinate[] spaces)
         {
             for (int m = 0; m < spaces.Length; m++)
             {
-                puzzle[spaces[m].i][spaces[m].j] = Empty;
+                puzzle[spaces[m].I][spaces[m].J] = Empty;
             }
         }
 
@@ -191,20 +194,20 @@ namespace Crossword
             return result.ToArray();
         }
 
-        private static (int i, int j) GetNextEmptyCoordinates(char[][] puzzle)
+        private static Coordinate GetNextEmptyCoordinates(char[][] puzzle)
         {
-            for (int i = 0; i < Size; i++)
+            for (uint i = 0; i < Size; i++)
             {
-                for (int j = 0; j < Size; j++)
+                for (uint j = 0; j < Size; j++)
                 {
                     if (puzzle[i][j] == Empty)
                     {
-                        return (i, j);
+                        return new Coordinate(i, j);
                     }
                 }
             }
 
-            return (-1, -1);
+            return null;
         }
 
         private string[] ShuffleWords(List<string> words)

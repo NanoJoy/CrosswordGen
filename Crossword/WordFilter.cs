@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Crossword
 {
@@ -32,13 +30,16 @@ namespace Crossword
 
             while (!streamReader.EndOfStream)
             {
-                var word = streamReader.ReadLine().ToUpper();
+                var line = streamReader.ReadLine();
 
-                AllWords.Add(word);
-
-                for (int i = 0; i < NumLetters; i++)
+                if (TryGetWord(line, out var word))
                 {
-                    LetterFilters[i].AddWord(word);
+                    AllWords.Add(word);
+
+                    for (int i = 0; i < NumLetters; i++)
+                    {
+                        LetterFilters[i].AddWord(word);
+                    }
                 }
             }
         }
@@ -115,7 +116,7 @@ namespace Crossword
             return HasMatchingWords(criteria);
         }
 
-        private void ValidateCriterion(LetterCriterion criterion)
+        private static void ValidateCriterion(LetterCriterion criterion)
         {
             if (criterion.Letter < 'A' || criterion.Letter > 'Z')
             {
@@ -125,6 +126,21 @@ namespace Crossword
             {
                 throw new Exception($"Criterion letter position {criterion.Position} is invalid: {criterion.Position}.");
             }
+        }
+
+        private static bool TryGetWord(string line, out string word)
+        {
+            var split = line.Split(';');
+
+            word = split[0];
+
+            if (word.Length != NumLetters || word.Any(c => c < 'A' || c > 'Z'))
+            {
+                word = null;
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -2,7 +2,7 @@
   "profiles": {
     "Crossword": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\Projects\\crossword\\wordlist.txt\""
+      "commandLineArgs": "\"D:\\Projects\\crossword\\crosswordlist.txt\""
     }
   }
 }
