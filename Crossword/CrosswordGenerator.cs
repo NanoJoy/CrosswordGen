@@ -62,23 +62,12 @@ namespace Crossword
                 result[squareValue.Coordinate.I][squareValue.Coordinate.J] = squareValue.Value;
             }
 
-            var firstWords = ShuffleWords(WordFilter.GetMatchingWords(new LetterCriterion[0]));
-
-            foreach (var word in firstWords)
+            if (!FillGrid(result))
             {
-                var written = WriteWord(result, 0, 0, true, word);
-
-                if (FillGrid(result))
-                {
-                    return result;
-                }
-                else
-                {
-                    UnwriteWord(result, written);
-                }
+                return null;
             }
 
-            return null;
+            return result;
         }
 
         private bool FillGrid(char[][] puzzle)
@@ -96,7 +85,7 @@ namespace Crossword
             var verticalCriteria = GetVerticalCriteria(puzzle, (int)i, (int)j);
             var horizontalCriteria = GetHorizontalCriteria(puzzle, (int)i, (int)j);
 
-            var doHorizontal = horizontalCriteria.Length >= verticalCriteria.Length;
+            var doHorizontal = horizontalCriteria.Letters.Length >= verticalCriteria.Letters.Length;
             var criteria = doHorizontal ? horizontalCriteria : verticalCriteria;
 
             var potentialWords = ShuffleWords(WordFilter.GetMatchingWords(criteria));
@@ -111,8 +100,6 @@ namespace Crossword
                 }
 
                 UnwriteWord(puzzle, writtenSpaces);
-
-                return false;
             }
 
             return false;
@@ -174,50 +161,78 @@ namespace Crossword
             }
         }
 
-        private static LetterCriterion[] GetVerticalCriteria(char[][] puzzle, int i, int j)
+        private static WordCriteria GetVerticalCriteria(char[][] puzzle, int i, int j)
         {
             var result = new List<LetterCriterion>();
 
-            for (int y = i - 1; y >= 0; y--)
+            int y;
+
+            for (y = i - 1; y >= 0; y--)
             {
+                if (puzzle[y][j] == Black)
+                {
+                    break;
+                }
                 if (puzzle[y][j] != Empty)
                 {
                     result.Add(new LetterCriterion((uint)y, puzzle[y][j]));
                 }
             }
 
-            for (int y = i + 1; y < Size; y++)
+            var lowerBound = y;
+
+            for (y = i + 1; y < Size; y++)
             {
+                if (puzzle[y][j] == Black)
+                {
+                    break;
+                }
                 if (puzzle[y][j] != Empty)
                 {
                     result.Add(new LetterCriterion((uint)y, puzzle[y][j]));
                 }
             }
 
-            return result.ToArray();
+            var upperBound = y;
+
+            return new WordCriteria((uint)(upperBound - lowerBound - 1), result.ToArray());
         }
 
-        private static LetterCriterion[] GetHorizontalCriteria(char[][] puzzle, int i, int j)
+        private static WordCriteria GetHorizontalCriteria(char[][] puzzle, int i, int j)
         {
             var result = new List<LetterCriterion>();
 
-            for (int x = j - 1; x >= 0; x--)
+            int x;
+
+            for (x = j - 1; x >= 0; x--)
             {
+                if (puzzle[i][x] == Black)
+                {
+                    break;
+                }
                 if (puzzle[i][x] != Empty)
                 {
                     result.Add(new LetterCriterion((uint)x, puzzle[i][x]));
                 }
             }
 
-            for (int x = j + 1; x < Size; x++)
+            var lowerBound = x;
+
+            for (x = j + 1; x < Size; x++)
             {
+                if (puzzle[i][x] == Black)
+                {
+                    break;
+                }
                 if (puzzle[i][x] != Empty)
                 {
                     result.Add(new LetterCriterion((uint)x, puzzle[i][x]));
                 }
             }
 
-            return result.ToArray();
+            var upperBound = x;
+
+            return new WordCriteria((uint)(upperBound - lowerBound - 1), result.ToArray());
         }
 
         private static Coordinate GetNextEmptyCoordinates(char[][] puzzle)

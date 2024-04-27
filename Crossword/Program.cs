@@ -27,8 +27,6 @@ namespace Crossword
                     Utils.WritePuzzle(puzzle);
 
                     Console.WriteLine();
-
-                    Console.ReadLine();
                 }
 
                 Console.Write("Enter criteria: ");

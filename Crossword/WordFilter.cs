@@ -7,19 +7,24 @@ namespace Crossword
 {
     class WordFilter
     {
-        private const uint NumLetters = 5;
+        private const uint MaxNumLetters = 5;
 
         private LetterFilter[] LetterFilters { get; }
 
         private List<string> AllWords { get; }
 
+        private HashSet<string>[] WordsByLength { get; }
+
         public WordFilter(string filePath)
         {
-            LetterFilters = new LetterFilter[NumLetters];
+            LetterFilters = new LetterFilter[MaxNumLetters];
 
-            for (uint i = 0; i < NumLetters; i++)
+            WordsByLength = new HashSet<string>[MaxNumLetters];
+
+            for (uint i = 0; i < MaxNumLetters; i++)
             {
                 LetterFilters[i] = new LetterFilter(i);
+                WordsByLength[i] = new HashSet<string>();
             }
 
             AllWords = new List<string>();
@@ -36,33 +41,33 @@ namespace Crossword
                 {
                     AllWords.Add(word);
 
-                    for (int i = 0; i < NumLetters; i++)
+                    for (int i = 0; i < MaxNumLetters; i++)
                     {
                         LetterFilters[i].AddWord(word);
                     }
+
+                    WordsByLength[word.Length - 1].Add(word);
                 }
             }
         }
 
-        public List<string> GetMatchingWords(LetterCriterion[] criteria)
+        public List<string> GetMatchingWords(WordCriteria criteria)
         {
-            if (criteria.Length == 0)
-            {
-                return AllWords;
-            }
+            var length = criteria.Length;
+            var letterCriteria = criteria.Letters;
 
-            foreach (var criterion in criteria)
+            foreach (var criterion in letterCriteria)
             {
                 ValidateCriterion(criterion);
             }
 
-            var matches = LetterFilters[criteria[0].Position].GetMatchingWords(criteria[0].Letter);
+            var matches = WordsByLength[length - 1].ToList();
 
-            for (int i = 1; i < criteria.Length; i++)
+            for (int i = 0; i < letterCriteria.Length; i++)
             {
-                var criterion = criteria[i];
+                var criterion = letterCriteria[i];
 
-                matches = matches.Where(w => LetterFilters[criterion.Position].CheckWord(w, criterion.Letter));
+                matches = matches.Where(w => LetterFilters[criterion.Position].CheckWord(w, criterion.Letter)).ToList();
             }
 
             return matches.ToList();
@@ -122,7 +127,7 @@ namespace Crossword
             {
                 throw new Exception($"Invalid letter for criterion: '{criterion.Letter}'.");
             }
-            if (criterion.Position >= NumLetters)
+            if (criterion.Position >= MaxNumLetters)
             {
                 throw new Exception($"Criterion letter position {criterion.Position} is invalid: {criterion.Position}.");
             }
@@ -134,7 +139,7 @@ namespace Crossword
 
             word = split[0];
 
-            if (word.Length != NumLetters || word.Any(c => c < 'A' || c > 'Z'))
+            if (word.Length > MaxNumLetters || word.Any(c => c < 'A' || c > 'Z'))
             {
                 word = null;
                 return false;
