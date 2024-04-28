@@ -9,6 +9,8 @@ namespace Crossword
     {
         private const uint MaxNumLetters = 5;
 
+        private const uint MinScoreToInclude = 50;
+
         private LetterFilter[] LetterFilters { get; }
 
         private List<string> AllWords { get; }
@@ -138,8 +140,9 @@ namespace Crossword
             var split = line.Split(';');
 
             word = split[0];
+            var score = uint.Parse(split[1]);
 
-            if (word.Length > MaxNumLetters || word.Any(c => c < 'A' || c > 'Z'))
+            if (score < MinScoreToInclude || word.Length > MaxNumLetters || word.Any(c => c < 'A' || c > 'Z'))
             {
                 word = null;
                 return false;
