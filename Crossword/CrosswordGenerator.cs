@@ -8,8 +8,6 @@ namespace Crossword
 {
     class CrosswordGenerator
     {
-        private const int Size = 5;
-
         private const char Empty = '-';
 
         private const char Black = '#';
@@ -18,22 +16,28 @@ namespace Crossword
 
         private Random Random { get; }
 
-        public CrosswordGenerator(WordFilter wordFilter)
+        private int Width { get; }
+
+        private int Height { get; }
+
+        public CrosswordGenerator(WordFilter wordFilter, int width, int height)
         {
             WordFilter = wordFilter;
             Random = new Random();
+            Width = width;
+            Height = height;
         }
 
         public char[][] GenerateCrossword(params SquareValue[] existing)
         {
-            var result = new char[Size][];
+            var result = new char[Height][];
 
             // Fill empty.
-            for (int i = 0; i < Size; i++)
+            for (int i = 0; i < Height; i++)
             {
-                result[i] = new char[Size];
+                result[i] = new char[Width];
 
-                for (int j = 0; j < Size; j++)
+                for (int j = 0; j < Width; j++)
                 {
                     result[i][j] = Empty;
                 }
@@ -44,14 +48,14 @@ namespace Crossword
             {
                 var squareValue = existing[i];
 
-                if (squareValue.Coordinate.I > Size)
+                if (squareValue.Coordinate.I > Height)
                 {
-                    throw new Exception($"Provided i coordinate {squareValue.Coordinate.I} is greater than height {Size}.");
+                    throw new Exception($"Provided i coordinate {squareValue.Coordinate.I} is greater than height {Height}.");
                 }
 
-                if (squareValue.Coordinate.J > Size)
+                if (squareValue.Coordinate.J > Width)
                 {
-                    throw new Exception($"Provided j coordinate {squareValue.Coordinate.J} is greater than height {Size}.");
+                    throw new Exception($"Provided j coordinate {squareValue.Coordinate.J} is greater than width {Width}.");
                 }
 
                 if (squareValue.Value != Black && squareValue.Value != Empty && (squareValue.Value < 'A' && squareValue.Value > 'Z'))
@@ -164,7 +168,7 @@ namespace Crossword
             }
         }
 
-        private static (uint wordStart, WordCriteria criteria) GetVerticalCriteria(char[][] puzzle, int i, int j)
+        private (uint wordStart, WordCriteria criteria) GetVerticalCriteria(char[][] puzzle, int i, int j)
         {
             var result = new List<LetterCriterion>();
 
@@ -180,7 +184,7 @@ namespace Crossword
 
             var lowerBound = y;
 
-            for (y = lowerBound + 1; y < Size; y++)
+            for (y = lowerBound + 1; y < Height; y++)
             {
                 if (puzzle[y][j] == Black)
                 {
@@ -197,7 +201,7 @@ namespace Crossword
             return ((uint)(lowerBound + 1), new WordCriteria((uint)(upperBound - lowerBound - 1), result.ToArray()));
         }
 
-        private static (uint wordStart, WordCriteria criteria) GetHorizontalCriteria(char[][] puzzle, int i, int j)
+        private (uint wordStart, WordCriteria criteria) GetHorizontalCriteria(char[][] puzzle, int i, int j)
         {
             var result = new List<LetterCriterion>();
 
@@ -213,7 +217,7 @@ namespace Crossword
 
             var lowerBound = x;
 
-            for (x = lowerBound + 1; x < Size; x++)
+            for (x = lowerBound + 1; x < Width; x++)
             {
                 if (puzzle[i][x] == Black)
                 {
@@ -230,11 +234,11 @@ namespace Crossword
             return ((uint)(lowerBound + 1), new WordCriteria((uint)(upperBound - lowerBound - 1), result.ToArray()));
         }
 
-        private static Coordinate GetNextEmptyCoordinates(char[][] puzzle)
+        private Coordinate GetNextEmptyCoordinates(char[][] puzzle)
         {
-            for (uint i = 0; i < Size; i++)
+            for (uint i = 0; i < Height; i++)
             {
-                for (uint j = 0; j < Size; j++)
+                for (uint j = 0; j < Width; j++)
                 {
                     if (puzzle[i][j] == Empty)
                     {

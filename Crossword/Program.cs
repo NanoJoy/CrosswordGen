@@ -11,7 +11,7 @@ namespace Crossword
 
             var wordFilter = new WordFilter(wordsFilePath);
 
-            var generator = new CrosswordGenerator(wordFilter);
+            var generator = new CrosswordGenerator(wordFilter, 7, 7);
 
             Console.Write("Enter criteria: ");
 

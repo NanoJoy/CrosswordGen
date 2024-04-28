@@ -7,7 +7,7 @@ namespace Crossword
 {
     class WordFilter
     {
-        private const uint MaxNumLetters = 5;
+        private const uint MaxNumLetters = 15;
 
         private const uint MinScoreToInclude = 50;
 
