@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 
 namespace Crossword
 {
@@ -9,52 +11,74 @@ namespace Crossword
         {
             var wordsFilePath = args[0];
 
+            var specsFilePath = args[1];
+
             var wordFilter = new WordFilter(wordsFilePath);
 
-            var generator = new CrosswordGenerator(wordFilter, 7, 7);
-
-            Console.Write("Enter criteria: ");
-
-            var existing = ParseExistingValues(Console.ReadLine());
-
-            while (true)
+            foreach (var spec in ParseSpecs(specsFilePath))
             {
-                var puzzle = generator.GenerateCrossword(existing);
+
+                var generator = new CrosswordGenerator(wordFilter, spec.Width, spec.Height);
+
+                Console.WriteLine("Input:\n");
+                Utils.WritePuzzle(generator.GetStartPuzzle(spec.ExistingValues));
+
+                Console.WriteLine("Generating...");
+
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                var puzzle = generator.GenerateCrossword(spec.ExistingValues);
+
+                stopwatch.Stop();
+
+                Console.WriteLine($"Finished in {stopwatch.Elapsed}");
 
                 if (puzzle != null)
                 {
-
+                    Console.WriteLine("Result:\n");
                     Utils.WritePuzzle(puzzle);
 
                     Console.WriteLine();
                 }
-
-                Console.Write("Enter criteria: ");
-
-                existing = ParseExistingValues(Console.ReadLine());
+                else
+                {
+                    Console.WriteLine("No matching puzzles found.\n");
+                }
             }
         }
 
-        static SquareValue[] ParseExistingValues(string existingValuesString)
+        static IEnumerable<PuzzleSpecification> ParseSpecs(string filePath)
         {
-            if (string.IsNullOrEmpty(existingValuesString))
-            {
-                return Array.Empty<SquareValue>();
-            }
-            var strings = existingValuesString.Split(';');
-            var result = new SquareValue[strings.Length];
+            using var specsFile = File.OpenRead(filePath);
+            using var reader = new StreamReader(specsFile);
 
-            for (int k = 0; k < strings.Length; k++)
+            var numPuzzles = int.Parse(reader.ReadLine());
+
+            for (int p = 0; p < numPuzzles; p++)
             {
-                var s = strings[k];
-                var parts = s.Split(',');
-                var i = uint.Parse(parts[0]);
-                var j = uint.Parse(parts[1]);
-                var v = char.Parse(parts[2]);
-                result[k] = new SquareValue(i, j, v);
+
+                var width = uint.Parse(reader.ReadLine());
+                var height = uint.Parse(reader.ReadLine());
+                var values = new List<SquareValue>();
+
+                for (int i = 0; i < height; i++)
+                {
+                    var line = reader.ReadLine();
+
+                    for (int j = 0; j < width; j++)
+                    {
+                        var c = line[j];
+
+                        if (c == '#' || c >= 'A' || c <= 'Z')
+                        {
+                            values.Add(new SquareValue((uint)i, (uint)j, c));
+                        }
+                    }
+                }
+                yield return new PuzzleSpecification(width, height, values.ToArray());
             }
 
-            return result;
         }
     }
 }

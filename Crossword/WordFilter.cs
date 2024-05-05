@@ -9,7 +9,7 @@ namespace Crossword
     {
         private const uint MaxNumLetters = 15;
 
-        private const uint MinScoreToInclude = 50;
+        private const uint MinScoreToInclude = 60;
 
         private LetterFilter[] LetterFilters { get; }
 

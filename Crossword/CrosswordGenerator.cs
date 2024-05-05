@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Crossword
 {
     class CrosswordGenerator
     {
+        private const uint MinWordLength = 3;
+
         private const char Empty = '-';
 
         private const char Black = '#';
@@ -16,11 +16,11 @@ namespace Crossword
 
         private Random Random { get; }
 
-        private int Width { get; }
+        private uint Width { get; }
 
-        private int Height { get; }
+        private uint Height { get; }
 
-        public CrosswordGenerator(WordFilter wordFilter, int width, int height)
+        public CrosswordGenerator(WordFilter wordFilter, uint width, uint height)
         {
             WordFilter = wordFilter;
             Random = new Random();
@@ -28,7 +28,7 @@ namespace Crossword
             Height = height;
         }
 
-        public char[][] GenerateCrossword(params SquareValue[] existing)
+        public char[][] GetStartPuzzle(params SquareValue[] existing)
         {
             var result = new char[Height][];
 
@@ -42,7 +42,7 @@ namespace Crossword
                     result[i][j] = Empty;
                 }
             }
-            
+
             // Fill existing values.
             for (int i = 0; i < existing.Length; i++)
             {
@@ -65,6 +65,13 @@ namespace Crossword
 
                 result[squareValue.Coordinate.I][squareValue.Coordinate.J] = squareValue.Value;
             }
+
+            return result;
+        }
+
+        public char[][] GenerateCrossword(params SquareValue[] existing)
+        {
+            var result = GetStartPuzzle(existing);
 
             var usedWords = new HashSet<string>();
 
