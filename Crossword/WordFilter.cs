@@ -9,7 +9,7 @@ namespace Crossword
     {
         private const uint MaxNumLetters = 15;
 
-        private const uint MinScoreToInclude = 60;
+        private const uint MinScoreToInclude = 65;
 
         private LetterFilter[] LetterFilters { get; }
 
@@ -69,7 +69,10 @@ namespace Crossword
             {
                 var criterion = letterCriteria[i];
 
-                matches = matches.Where(w => LetterFilters[criterion.Position].CheckWord(w, criterion.Letter)).ToList();
+                if (criterion.Letter != '-')
+                {
+                    matches = matches.Where(w => LetterFilters[criterion.Position].CheckWord(w, criterion.Letter)).ToList();
+                }
             }
 
             return matches.ToList();
@@ -98,7 +101,10 @@ namespace Crossword
             {
                 var criterion = criteria[i];
 
-                matches = matches.Where(w => LetterFilters[criterion.Position].CheckWord(w, criterion.Letter));
+                if (criterion.Letter != '-')
+                {
+                    matches = matches.Where(w => LetterFilters[criterion.Position].CheckWord(w, criterion.Letter));
+                }
 
                 if (!matches.Any())
                 {
@@ -125,7 +131,7 @@ namespace Crossword
 
         private static void ValidateCriterion(LetterCriterion criterion)
         {
-            if (criterion.Letter < 'A' || criterion.Letter > 'Z')
+            if (criterion.Letter != '-' && (criterion.Letter < 'A' || criterion.Letter > 'Z'))
             {
                 throw new Exception($"Invalid letter for criterion: '{criterion.Letter}'.");
             }

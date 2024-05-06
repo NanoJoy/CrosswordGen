@@ -10,7 +10,7 @@ namespace Crossword
     {
         public uint Position { get; }
 
-        public char Letter { get; }
+        public char Letter { get; set; }
 
         public LetterCriterion(uint position, char letter)
         {
