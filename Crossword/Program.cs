@@ -58,8 +58,8 @@ namespace Crossword
             for (int p = 0; p < numPuzzles; p++)
             {
 
-                var width = uint.Parse(reader.ReadLine());
-                var height = uint.Parse(reader.ReadLine());
+                var width = int.Parse(reader.ReadLine());
+                var height = int.Parse(reader.ReadLine());
                 var values = new List<SquareValue>();
 
                 for (int i = 0; i < height; i++)
@@ -72,7 +72,7 @@ namespace Crossword
 
                         if (c == '#' || c >= 'A' || c <= 'Z')
                         {
-                            values.Add(new SquareValue((uint)i, (uint)j, c));
+                            values.Add(new SquareValue(i, j, c));
                         }
                     }
                 }

@@ -6,7 +6,7 @@
 
         public char Value { get; }
 
-        public SquareValue(uint i, uint j, char v)
+        public SquareValue(int i, int j, char v)
         {
             Coordinate = new Coordinate(i, j);
             Value = v;

@@ -2,13 +2,13 @@
 {
     record PuzzleSpecification
     {
-        public uint Width { get; }
+        public int Width { get; }
 
-        public uint Height { get; }
+        public int Height { get; }
 
         public SquareValue[] ExistingValues { get; }
 
-        public PuzzleSpecification(uint width, uint height, SquareValue[] existingValues)
+        public PuzzleSpecification(int width, int height, SquareValue[] existingValues)
         {
             Width = width;
             Height = height;

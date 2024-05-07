@@ -7,13 +7,13 @@ namespace Crossword
     {
         private int _numFilledLetters;
 
-        public uint Length { get; }
+        public int Length { get; }
 
         public LetterCriterion[] Letters { get; }
 
         public int NumFilledLetters => _numFilledLetters;
 
-        public WordCriteria(uint length, params LetterCriterion[] letters)
+        public WordCriteria(int length, params LetterCriterion[] letters)
         {
             Length = length;
             Letters = letters;

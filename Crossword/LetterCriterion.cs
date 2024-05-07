@@ -8,11 +8,11 @@ namespace Crossword
 {
     record LetterCriterion
     {
-        public uint Position { get; }
+        public int Position { get; }
 
         public char Letter { get; set; }
 
-        public LetterCriterion(uint position, char letter)
+        public LetterCriterion(int position, char letter)
         {
             Position = position;
             Letter = letter;

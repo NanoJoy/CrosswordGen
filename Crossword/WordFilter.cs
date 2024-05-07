@@ -7,9 +7,9 @@ namespace Crossword
 {
     class WordFilter
     {
-        private const uint MaxNumLetters = 15;
+        private const int MaxNumLetters = 15;
 
-        private const uint MinScoreToInclude = 65;
+        private const int MinScoreToInclude = 65;
 
         private LetterFilter[] LetterFilters { get; }
 
@@ -23,7 +23,7 @@ namespace Crossword
 
             WordsByLength = new HashSet<string>[MaxNumLetters];
 
-            for (uint i = 0; i < MaxNumLetters; i++)
+            for (int i = 0; i < MaxNumLetters; i++)
             {
                 LetterFilters[i] = new LetterFilter(i);
                 WordsByLength[i] = new HashSet<string>();
@@ -118,7 +118,7 @@ namespace Crossword
         public bool HasMatchingWord(string word)
         {
             LetterCriterion[] criteria = new LetterCriterion[word.Length];
-            uint i = 0;
+            int i = 0;
 
             foreach (var c in word)
             {
@@ -146,7 +146,7 @@ namespace Crossword
             var split = line.Split(';');
 
             word = split[0];
-            var score = uint.Parse(split[1]);
+            var score = int.Parse(split[1]);
 
             if (score < MinScoreToInclude || word.Length > MaxNumLetters || word.Any(c => c < 'A' || c > 'Z'))
             {

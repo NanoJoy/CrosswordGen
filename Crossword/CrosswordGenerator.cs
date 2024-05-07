@@ -14,11 +14,11 @@ namespace Crossword
 
         private Random Random { get; }
 
-        private uint Width { get; }
+        private int Width { get; }
 
-        private uint Height { get; }
+        private int Height { get; }
 
-        public CrosswordGenerator(WordFilter wordFilter, uint width, uint height)
+        public CrosswordGenerator(WordFilter wordFilter, int width, int height)
         {
             WordFilter = wordFilter;
             Random = new Random();
@@ -140,7 +140,7 @@ namespace Crossword
             for (int y = 0; y < Height; y++)
             {
                 List<LetterCriterion> letterCriteria = null;
-                uint currentWordLength = 0;
+                int currentWordLength = 0;
 
                 for (int x = 0; x < Width; x++)
                 {
@@ -150,7 +150,7 @@ namespace Crossword
                         {
                             var wordCriteria = new WordCriteria(currentWordLength, letterCriteria.ToArray());
 
-                            for (int i = x - (int)currentWordLength; i < x; i++)
+                            for (int i = x - currentWordLength; i < x; i++)
                             {
                                 context.HorizontalCriteria[y][i] = wordCriteria;
                             }
@@ -167,7 +167,7 @@ namespace Crossword
 
                     currentWordLength++;
 
-                    letterCriteria.Add(new LetterCriterion((uint)(x - context.HorizontalWordStarts[y][x]), context.Puzzle[y][x]));
+                    letterCriteria.Add(new LetterCriterion(x - context.HorizontalWordStarts[y][x], context.Puzzle[y][x]));
                 }
 
                 if (currentWordLength > 0)
@@ -184,7 +184,7 @@ namespace Crossword
             for (int x = 0; x < Width; x++)
             {
                 List<LetterCriterion> letterCriteria = null;
-                uint currentWordLength = 0;
+                int currentWordLength = 0;
 
                 for (int y = 0; y < Height; y++)
                 {
@@ -194,7 +194,7 @@ namespace Crossword
                         {
                             var wordCriteria = new WordCriteria(currentWordLength, letterCriteria.ToArray());
 
-                            for (int i = y - (int)currentWordLength; i < y; i++)
+                            for (int i = y - currentWordLength; i < y; i++)
                             {
                                 context.VerticalCriteria[i][x] = wordCriteria;
                             }
@@ -211,7 +211,7 @@ namespace Crossword
 
                     currentWordLength++;
 
-                    letterCriteria.Add(new LetterCriterion((uint)(y - context.VerticalWordStarts[y][x]), context.Puzzle[y][x]));
+                    letterCriteria.Add(new LetterCriterion(y - context.VerticalWordStarts[y][x], context.Puzzle[y][x]));
                 }
 
                 if (currentWordLength > 0)
@@ -228,9 +228,6 @@ namespace Crossword
 
         private bool FillGrid(GenerationContext context, HashSet<string> usedWords)
         {
-            Utils.WritePuzzle(context.Puzzle);
-            Console.WriteLine();
-
             var nextEmptyCoordinates = GetNextEmptyCoordinates(context.Puzzle);
 
             if (nextEmptyCoordinates == null)
@@ -241,8 +238,8 @@ namespace Crossword
             var i = nextEmptyCoordinates.I;
             var j = nextEmptyCoordinates.J;
 
-            var verticalCriteria = GetVerticalCriteria(context, (int)i, (int)j);
-            var horizontalCriteria = GetHorizontalCriteria(context, (int)i, (int)j);
+            var verticalCriteria = GetVerticalCriteria(context, i, j);
+            var horizontalCriteria = GetHorizontalCriteria(context, i, j);
 
             var doHorizontal = horizontalCriteria.criteria.NumFilledLetters >= verticalCriteria.criteria.NumFilledLetters;
             var criteria = doHorizontal ? horizontalCriteria : verticalCriteria;
@@ -273,7 +270,7 @@ namespace Crossword
                 var i = writtenSpace.I;
                 var j = writtenSpace.J;
 
-                var (_, criteria) = doHorizontal ? GetVerticalCriteria(context, (int)i, (int)j) : GetHorizontalCriteria(context, (int)i, (int)j);
+                var (_, criteria) = doHorizontal ? GetVerticalCriteria(context, i, j) : GetHorizontalCriteria(context, i, j);
 
                 if (!WordFilter.GetMatchingWords(criteria).Any())
                 {
@@ -283,7 +280,7 @@ namespace Crossword
             return true;
         }
 
-        private static Coordinate[] WriteWord(GenerationContext context, uint i, uint j, bool doHorizontal, string word)
+        private static Coordinate[] WriteWord(GenerationContext context, int i, int j, bool doHorizontal, string word)
         {
             var changes = new List<Coordinate>();
 
@@ -296,8 +293,8 @@ namespace Crossword
                     {
                         context.Puzzle[i][x + wordStart] = word[x];
                         context.HorizontalCriteria[i][j].SetLetter(x, word[x]);
-                        context.VerticalCriteria[i][x + wordStart].SetLetter((int)i - context.VerticalWordStarts[i][x + wordStart], word[x]);
-                        changes.Add(new Coordinate(i, (uint)(x + wordStart)));
+                        context.VerticalCriteria[i][x + wordStart].SetLetter(i - context.VerticalWordStarts[i][x + wordStart], word[x]);
+                        changes.Add(new Coordinate(i, x + wordStart));
                     }
                 }
             }
@@ -311,8 +308,8 @@ namespace Crossword
                     {
                         context.Puzzle[y + wordStart][j] = word[y];
                         context.VerticalCriteria[i][j].SetLetter(y, word[y]);
-                        context.HorizontalCriteria[y + wordStart][j].SetLetter((int)j - context.HorizontalWordStarts[y + wordStart][j], word[y]);
-                        changes.Add(new Coordinate((uint)(y + wordStart), j));
+                        context.HorizontalCriteria[y + wordStart][j].SetLetter(j - context.HorizontalWordStarts[y + wordStart][j], word[y]);
+                        changes.Add(new Coordinate(y + wordStart, j));
                     }
                 }
             }
@@ -329,26 +326,26 @@ namespace Crossword
                 context.Puzzle[i][j] = Empty;
                 var horizontalWordStart = context.HorizontalWordStarts[i][j];
                 var verticalWordStart = context.VerticalWordStarts[i][j];
-                context.HorizontalCriteria[i][j].SetLetter((int)j - horizontalWordStart, Empty);
-                context.VerticalCriteria[i][j].SetLetter((int)i - verticalWordStart, Empty);
+                context.HorizontalCriteria[i][j].SetLetter(j - horizontalWordStart, Empty);
+                context.VerticalCriteria[i][j].SetLetter(i - verticalWordStart, Empty);
             }
         }
 
-        private (uint wordStart, WordCriteria criteria) GetVerticalCriteria(GenerationContext context, int i, int j)
+        private (int wordStart, WordCriteria criteria) GetVerticalCriteria(GenerationContext context, int i, int j)
         {
-            return ((uint)context.VerticalWordStarts[i][j], context.VerticalCriteria[i][j]);
+            return (context.VerticalWordStarts[i][j], context.VerticalCriteria[i][j]);
         }
 
-        private (uint wordStart, WordCriteria criteria) GetHorizontalCriteria(GenerationContext context, int i, int j)
+        private (int wordStart, WordCriteria criteria) GetHorizontalCriteria(GenerationContext context, int i, int j)
         {
-            return ((uint)context.HorizontalWordStarts[i][j], context.HorizontalCriteria[i][j]);
+            return (context.HorizontalWordStarts[i][j], context.HorizontalCriteria[i][j]);
         }
 
         private Coordinate GetNextEmptyCoordinates(char[][] puzzle)
         {
-            for (uint i = 0; i < Height; i++)
+            for (int i = 0; i < Height; i++)
             {
-                for (uint j = 0; j < Width; j++)
+                for (int j = 0; j < Width; j++)
                 {
                     if (puzzle[i][j] == Empty)
                     {

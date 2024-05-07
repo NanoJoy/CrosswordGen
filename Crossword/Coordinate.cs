@@ -2,11 +2,11 @@
 {
     class Coordinate
     {
-        public uint I { get; }
+        public int I { get; }
 
-        public uint J { get; }
+        public int J { get; }
 
-        public Coordinate(uint i, uint j)
+        public Coordinate(int i, int j)
         {
             I = i;
             J = j;

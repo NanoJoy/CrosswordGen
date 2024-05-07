@@ -8,15 +8,15 @@ namespace Crossword
 {
     class LetterFilter
     {
-        private const uint NumLetters = 26;
+        private const int NumLetters = 26;
 
-        private const uint AsciiLettersStart = 'A';
+        private const int AsciiLettersStart = 'A';
 
-        private uint LetterPosition { get; }
+        private int LetterPosition { get; }
 
         private HashSet<string>[] WordsByLetter { get; }
 
-        public LetterFilter(uint letterPosition)
+        public LetterFilter(int letterPosition)
         {
             LetterPosition = letterPosition;
             WordsByLetter = new HashSet<string>[NumLetters];
@@ -33,7 +33,7 @@ namespace Crossword
                 return;
             }
 
-            var letter = word[(int)LetterPosition];
+            var letter = word[LetterPosition];
 
             if (letter < 'A' || letter > 'Z')
             {

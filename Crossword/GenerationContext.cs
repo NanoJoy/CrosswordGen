@@ -18,7 +18,7 @@ namespace Crossword
 
         public WordCriteria[][] HorizontalCriteria { get; }
 
-        public GenerationContext(uint width, uint height)
+        public GenerationContext(int width, int height)
         {
             Puzzle = new char[height][];
             VerticalWordStarts = new int[height][];
