@@ -36,9 +36,9 @@ namespace Crossword
         {
             var context = InitializeContext(existing);
 
-            var usedWords = new HashSet<string>();
+            int hitCount = 0;
 
-            if (!FillGrid(context, usedWords))
+            if (!FillGrid(context, ref hitCount))
             {
                 return null;
             }
@@ -226,41 +226,79 @@ namespace Crossword
             }
         }
 
-        private bool FillGrid(GenerationContext context, HashSet<string> usedWords)
+        private bool FillGrid(GenerationContext context, ref int hitCount)
         {
-            var nextEmptyCoordinates = GetNextEmptyCoordinates(context.Puzzle);
+            hitCount++;
 
-            if (nextEmptyCoordinates == null)
+            /*if (hitCount % 0x2000 == 0)
+            {
+                Utils.WritePuzzle(context.Puzzle);
+                Console.WriteLine();
+            }*/
+
+            var (hasNext, i, j, doHorizontal) = GetNextWordToFill(context);
+
+            if (!hasNext)
             {
                 return true;
             }
 
-            var i = nextEmptyCoordinates.I;
-            var j = nextEmptyCoordinates.J;
+            var criteria = doHorizontal ? GetHorizontalCriteria(context, i, j) : GetVerticalCriteria(context, i, j);
 
-            var verticalCriteria = GetVerticalCriteria(context, i, j);
-            var horizontalCriteria = GetHorizontalCriteria(context, i, j);
-
-            var doHorizontal = horizontalCriteria.criteria.NumFilledLetters >= verticalCriteria.criteria.NumFilledLetters;
-            var criteria = doHorizontal ? horizontalCriteria : verticalCriteria;
-
-            var potentialWords = ShuffleWords(WordFilter.GetMatchingWords(criteria.criteria)).Where(w => !usedWords.Contains(w)).ToList();
+            var potentialWords = ShuffleWords(WordFilter.GetMatchingWords(criteria.criteria)).Where(w => !context.UsedWords.Contains(w)).ToList();
 
             foreach (var word in potentialWords)
             {
                 var writtenSpaces = WriteWord(context, i, j, doHorizontal, word);
-                usedWords.Add(word);
+                context.UsedWords.Add(word);
 
-                if (DoAlternateWordsExist(context, writtenSpaces, doHorizontal) && FillGrid(context, usedWords))
+                if (DoAlternateWordsExist(context, writtenSpaces, doHorizontal) && FillGrid(context, ref hitCount))
                 {
                     return true;
                 }
 
-                usedWords.Remove(word);
+                context.UsedWords.Remove(word);
                 UnwriteWord(context, writtenSpaces);
             }
 
             return false;
+        }
+
+        private (bool hasNext, int i, int j, bool doHorizontal) GetNextWordToFill(GenerationContext context)
+        {
+            bool doHorizontal = true;
+            int i = -1;
+            int j = -1;
+            int maxCriteria = -1;
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (context.Puzzle[y][x] != Empty)
+                    {
+                        continue;
+                    }
+
+                    if (context.HorizontalCriteria[y][x].NumFilledLetters > maxCriteria)
+                    {
+                        maxCriteria = context.HorizontalCriteria[y][x].NumFilledLetters;
+                        i = y;
+                        j = x;
+                        doHorizontal = true;
+                    }
+
+                    if (context.VerticalCriteria[y][x].NumFilledLetters > maxCriteria)
+                    {
+                        maxCriteria = context.VerticalCriteria[y][x].NumFilledLetters;
+                        i = y;
+                        j = x;
+                        doHorizontal = false;
+                    }
+                }
+            }
+
+            return (maxCriteria != -1, i, j, doHorizontal);
         }
 
         private bool DoAlternateWordsExist(GenerationContext context, Coordinate[] writtenSpaces, bool doHorizontal)

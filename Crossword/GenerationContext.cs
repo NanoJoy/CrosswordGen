@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Crossword
 {
@@ -18,6 +14,8 @@ namespace Crossword
 
         public WordCriteria[][] HorizontalCriteria { get; }
 
+        public HashSet<string> UsedWords { get; }
+
         public GenerationContext(int width, int height)
         {
             Puzzle = new char[height][];
@@ -25,6 +23,7 @@ namespace Crossword
             HorizontalWordStarts = new int[height][];
             VerticalCriteria = new WordCriteria[height][];
             HorizontalCriteria = new WordCriteria[height][];
+            UsedWords = new HashSet<string>();
 
             for (int i = 0; i < height; i++)
             {
