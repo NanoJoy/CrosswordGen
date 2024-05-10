@@ -16,7 +16,7 @@ namespace Crossword
         public WordCriteria(int length, params LetterCriterion[] letters)
         {
             Length = length;
-            Letters = letters;
+            Letters = letters.OrderBy(l => l.Position).ToArray();
             _numFilledLetters = letters.Count(l => l.Letter != '-');
         }
 

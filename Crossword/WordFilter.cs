@@ -63,16 +63,46 @@ namespace Crossword
                 ValidateCriterion(criterion);
             }
 
-            var matches = WordsByLength[length - 1].ToList();
+            List<string> matches = null;
 
-            for (int i = 0; i < letterCriteria.Length; i++)
+            int i = letterCriteria.Length - 1;
+            bool anyLettersSpecified = false;
+
+            while (matches == null && i >= 0)
             {
                 var criterion = letterCriteria[i];
 
                 if (criterion.Letter != '-')
                 {
-                    matches = matches.Where(w => LetterFilters[criterion.Position].CheckWord(w, criterion.Letter)).ToList();
+                    anyLettersSpecified = true;
+                    matches = LetterFilters[criterion.Position]
+                        .GetMatchingWords(criterion.Letter)
+                        .Where(w => w.Length == criteria.Length)
+                        .ToList();
                 }
+
+                i--;
+            }
+
+            if (matches == null)
+            {
+                if (anyLettersSpecified)
+                {
+                    return new List<string>();
+                }
+                return WordsByLength[length - 1].ToList();
+            }
+
+            while (i >= 0)
+            {
+                var criterion = letterCriteria[i];
+
+                if (criterion.Letter != '-')
+                {
+                    matches = matches.Where(w => w[criterion.Position] == criterion.Letter).ToList();
+                }
+
+                i--;
             }
 
             return matches.ToList();
