@@ -9,13 +9,15 @@ namespace Crossword
     {
         private const int MaxNumLetters = 15;
 
-        private const int MinScoreToInclude = 50;
+        private const int MinScoreToInclude = 0;
 
         private LetterFilter[] LetterFilters { get; }
 
         private List<string> AllWords { get; }
 
         private HashSet<string>[] WordsByLength { get; }
+
+        private Dictionary<string, WordScore> Scores { get; }
 
         public WordFilter(string filePath)
         {
@@ -31,6 +33,8 @@ namespace Crossword
 
             AllWords = new List<string>();
 
+            Scores = new Dictionary<string, WordScore>();
+
             using var stream = File.OpenRead(filePath);
 
             using var streamReader = new StreamReader(stream);
@@ -39,7 +43,7 @@ namespace Crossword
             {
                 var line = streamReader.ReadLine();
 
-                if (TryGetWord(line, out var word))
+                if (TryGetWord(line, out var word, out var score))
                 {
                     AllWords.Add(word);
 
@@ -49,11 +53,12 @@ namespace Crossword
                     }
 
                     WordsByLength[word.Length - 1].Add(word);
+                    Scores[word] = new WordScore(word, score);
                 }
             }
         }
 
-        public List<string> GetMatchingWords(WordCriteria criteria)
+        public List<WordScore> GetMatchingWords(WordCriteria criteria)
         {
             var length = criteria.Length;
             var letterCriteria = criteria.Letters;
@@ -88,9 +93,9 @@ namespace Crossword
             {
                 if (anyLettersSpecified)
                 {
-                    return new List<string>();
+                    return new List<WordScore>();
                 }
-                return WordsByLength[length - 1].ToList();
+                return WordsByLength[length - 1].Select(w => Scores[w]).ToList();
             }
 
             while (i >= 0)
@@ -105,7 +110,7 @@ namespace Crossword
                 i--;
             }
 
-            return matches.ToList();
+            return matches.Select(w => Scores[w]).ToList();
         }
 
         public bool HasMatchingWords(LetterCriterion[] criteria)
@@ -171,16 +176,17 @@ namespace Crossword
             }
         }
 
-        private static bool TryGetWord(string line, out string word)
+        private static bool TryGetWord(string line, out string word, out int score)
         {
             var split = line.Split(';');
 
             word = split[0];
-            var score = int.Parse(split[1]);
+            score = int.Parse(split[1]);
 
             if (score < MinScoreToInclude || word.Length > MaxNumLetters || word.Any(c => c < 'A' || c > 'Z'))
             {
                 word = null;
+                score = -1;
                 return false;
             }
 

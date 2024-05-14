@@ -18,6 +18,8 @@ namespace Crossword
 
         private int Height { get; }
 
+        private WordTryOrder WordTryOrder { get; } = WordTryOrder.Random;
+
         public CrosswordGenerator(WordFilter wordFilter, int width, int height)
         {
             WordFilter = wordFilter;
@@ -245,9 +247,11 @@ namespace Crossword
 
             var criteria = doHorizontal ? GetHorizontalCriteria(context, i, j) : GetVerticalCriteria(context, i, j);
 
-            var potentialWords = ShuffleWords(WordFilter.GetMatchingWords(criteria.criteria)).Where(w => !context.UsedWords.Contains(w)).ToList();
+            var potentialWords = WordFilter.GetMatchingWords(criteria.criteria).Where(w => !context.UsedWords.Contains(w.Word)).ToList();
 
-            foreach (var word in potentialWords)
+            var wordsToTry = GetWordsToTry(potentialWords);
+
+            foreach (var word in wordsToTry)
             {
                 var writtenSpaces = WriteWord(context, i, j, doHorizontal, word);
                 context.UsedWords.Add(word);
@@ -379,26 +383,23 @@ namespace Crossword
             return (context.HorizontalWordStarts[i][j], context.HorizontalCriteria[i][j]);
         }
 
-        private Coordinate GetNextEmptyCoordinates(char[][] puzzle)
+        private string[] GetWordsToTry(List<WordScore> words)
         {
-            for (int i = 0; i < Height; i++)
+            switch (WordTryOrder)
             {
-                for (int j = 0; j < Width; j++)
-                {
-                    if (puzzle[i][j] == Empty)
-                    {
-                        return new Coordinate(i, j);
-                    }
-                }
+                case WordTryOrder.Random:
+                    return ShuffleWords(words);
+                case WordTryOrder.HighestScore:
+                    return GetWordsOrderedByScore(words);
             }
 
-            return null;
+            return Array.Empty<string>();
         }
 
-        private string[] ShuffleWords(List<string> words)
+        private string[] ShuffleWords(List<WordScore> words)
         {
             var result = new string[words.Count];
-            words.CopyTo(result);
+            words.Select(w => w.Word).ToList().CopyTo(result);
 
             for (int i = 0; i < words.Count; i++)
             {
@@ -409,6 +410,11 @@ namespace Crossword
             }
 
             return result;
+        }
+
+        private static string[] GetWordsOrderedByScore(List<WordScore> words)
+        {
+            return words.OrderByDescending(w => w.Score).Select(w => w.Word).ToArray();
         }
     }
 }

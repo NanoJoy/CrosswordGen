@@ -13,6 +13,15 @@ namespace Crossword
 
             var specsFilePath = args[1];
 
+            var outputDirectoryPath = args.Length > 2 ? args[2] : null;
+
+            if (outputDirectoryPath != null)
+            {
+                var outputFilePath = Path.Combine(outputDirectoryPath, $"Output_{DateTime.Now:yyyyMMddHHmmss}.txt");
+                using var stream = File.Create(outputFilePath);
+                Utils.SetOutputFile(stream);
+            }
+
             var wordFilter = new WordFilter(wordsFilePath);
 
             foreach (var spec in ParseSpecs(specsFilePath))
