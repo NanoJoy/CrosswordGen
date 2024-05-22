@@ -38,5 +38,17 @@ namespace Crossword
 
             Letters[position].Letter = letter;
         }
+
+        public WordCriteria Copy()
+        {
+            var criteriaCopy = new LetterCriterion[Letters.Length];
+
+            for (int i = 0; i < Letters.Length; i++)
+            {
+                criteriaCopy[i] = new LetterCriterion(Letters[i].Position, Letters[i].Letter);
+            }
+
+            return new WordCriteria(Length, criteriaCopy);
+        }
     }
 }

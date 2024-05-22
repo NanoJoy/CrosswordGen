@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Crossword
 {
@@ -9,6 +11,8 @@ namespace Crossword
         private const char Empty = '-';
 
         private const char Black = '#';
+
+        private object Lock { get; } = new object();
 
         private WordFilter WordFilter { get; }
 
@@ -20,12 +24,13 @@ namespace Crossword
 
         private WordTryOrder WordTryOrder { get; } = WordTryOrder.Random;
 
-        public CrosswordGenerator(WordFilter wordFilter, int width, int height)
+        public CrosswordGenerator(WordFilter wordFilter, int width, int height, WordTryOrder trialStrategy = WordTryOrder.Random)
         {
             WordFilter = wordFilter;
             Random = new Random();
             Width = width;
             Height = height;
+            WordTryOrder = trialStrategy;
         }
 
         public char[][] GetStartPuzzle(params SquareValue[] existing)
@@ -36,16 +41,61 @@ namespace Crossword
 
         public char[][] GenerateCrossword(params SquareValue[] existing)
         {
-            var context = InitializeContext(existing);
+            var rootContext = InitializeContext(existing);
 
-            int hitCount = 0;
+            var (hasNext, i, j, doHorizontal) = GetNextWordToFill(rootContext);
 
-            if (!FillGrid(context, ref hitCount))
+            if (!hasNext)
             {
                 return null;
             }
 
-            return context.Puzzle;
+            var criteria = doHorizontal ? GetHorizontalCriteria(rootContext, i, j) : GetVerticalCriteria(rootContext, i, j);
+
+            var potentialWords = WordFilter.GetMatchingWords(criteria.criteria).Where(w => !rootContext.UsedWords.Contains(w.Word)).ToList();
+
+            var wordsToTry = GetWordsToTry(potentialWords);
+
+            GenerationContext winningContext = null;
+            var tracker = new ParallelTracker();
+
+            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+
+            Parallel.ForEach(wordsToTry, parallelOptions, (word) =>
+            {
+                lock (Lock)
+                {
+                    if (winningContext != null)
+                    {
+                        return;
+                    }
+                }
+                var context = new GenerationContext(Width, Height);
+
+                PopulateInitialValues(existing, context);
+
+                PopulateWordStartPositions(context);
+
+                InitializeCriteria(context);
+
+                WriteWord(context, i, j, doHorizontal, word);
+
+                if (FillGrid(context, tracker))
+                {
+                    lock (Lock)
+                    {
+                        //Console.WriteLine($"Winning puzzle found for initial word {word}");
+                        winningContext = context;
+                        tracker.IsOver = true;
+                    }
+                }
+                else
+                {
+                    //Console.WriteLine($"No puzzle found for initial word {word}");
+                }
+            });
+
+           return winningContext?.Puzzle;
         }
 
         private GenerationContext InitializeContext(SquareValue[] existing)
@@ -228,15 +278,15 @@ namespace Crossword
             }
         }
 
-        private bool FillGrid(GenerationContext context, ref int hitCount)
+        private bool FillGrid(GenerationContext context, ParallelTracker tracker)
         {
-            hitCount++;
-
-            /*if (hitCount % 0x2000 == 0)
+            lock(Lock)
             {
-                Utils.WritePuzzle(context.Puzzle);
-                Console.WriteLine();
-            }*/
+                if (tracker.IsOver)
+                {
+                    return false;
+                }
+            }
 
             var (hasNext, i, j, doHorizontal) = GetNextWordToFill(context);
 
@@ -253,10 +303,19 @@ namespace Crossword
 
             foreach (var word in wordsToTry)
             {
+
+                lock (Lock)
+                {
+                    if (tracker.IsOver)
+                    {
+                        return false;
+                    }
+                }
+
                 var writtenSpaces = WriteWord(context, i, j, doHorizontal, word);
                 context.UsedWords.Add(word);
 
-                if (DoAlternateWordsExist(context, writtenSpaces, doHorizontal) && FillGrid(context, ref hitCount))
+                if (DoAlternateWordsExist(context, writtenSpaces, doHorizontal) && FillGrid(context, tracker))
                 {
                     return true;
                 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Crossword
 {
@@ -34,5 +35,31 @@ namespace Crossword
                 HorizontalCriteria[i] = new WordCriteria[width];
             }
         }
+
+        /*public GenerationContext Copy()
+        {
+            var width = Puzzle[0].Length;
+            var height = Puzzle.Length;
+            var copy = new GenerationContext(width, height);
+
+            foreach (var usedWord in UsedWords)
+            {
+                copy.UsedWords.Add(usedWord);
+            }
+
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    copy.Puzzle[i][j] = Puzzle[i][j];
+                    copy.VerticalWordStarts[i][j] = VerticalWordStarts[i][j];
+                    copy.HorizontalWordStarts[i][j] = HorizontalWordStarts[i][j];
+                    copy.VerticalCriteria[i][j] = VerticalCriteria[i][j]?.Copy();
+                    copy.HorizontalCriteria[i][j] = HorizontalCriteria[i][j]?.Copy();
+                }
+            }
+
+            return copy;
+        }*/
     }
 }

@@ -15,45 +15,59 @@ namespace Crossword
 
             var outputDirectoryPath = args.Length > 2 ? args[2] : null;
 
-            if (outputDirectoryPath != null)
+            Stream stream = null;
+
+            try
             {
-                var outputFilePath = Path.Combine(outputDirectoryPath, $"Output_{DateTime.Now:yyyyMMddHHmmss}.txt");
-                using var stream = File.Create(outputFilePath);
-                Utils.SetOutputFile(stream);
+
+                if (outputDirectoryPath != null)
+                {
+                    var outputFilePath = Path.Combine(outputDirectoryPath, $"Output_{DateTime.Now:yyyyMMddHHmmss}.txt");
+                    stream = File.Create(outputFilePath);
+                    Utils.SetOutputFile(stream);
+                }
+
+                var wordTryOrderString = args.Length > 3 ? args[3] : null;
+
+                var wordTryOrder = wordTryOrderString == null ? WordTryOrder.Random : Enum.Parse<WordTryOrder>(wordTryOrderString);
+
+                var wordFilter = new WordFilter(wordsFilePath);
+
+                foreach (var spec in ParseSpecs(specsFilePath))
+                {
+
+                    var generator = new CrosswordGenerator(wordFilter, spec.Width, spec.Height, wordTryOrder);
+
+                    Console.WriteLine("Input:\n");
+                    Utils.WritePuzzle(generator.GetStartPuzzle(spec.ExistingValues));
+
+                    Console.WriteLine("Generating...");
+
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+
+                    var puzzle = generator.GenerateCrossword(spec.ExistingValues);
+
+                    stopwatch.Stop();
+
+                    Console.WriteLine($"Finished in {stopwatch.Elapsed}");
+
+                    if (puzzle != null)
+                    {
+                        Console.WriteLine("Result:\n");
+                        Utils.WritePuzzle(puzzle);
+
+                        Console.WriteLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine("No matching puzzles found.\n");
+                    }
+                }
             }
-
-            var wordFilter = new WordFilter(wordsFilePath);
-
-            foreach (var spec in ParseSpecs(specsFilePath))
+            finally
             {
-
-                var generator = new CrosswordGenerator(wordFilter, spec.Width, spec.Height);
-
-                Console.WriteLine("Input:\n");
-                Utils.WritePuzzle(generator.GetStartPuzzle(spec.ExistingValues));
-
-                Console.WriteLine("Generating...");
-
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-
-                var puzzle = generator.GenerateCrossword(spec.ExistingValues);
-
-                stopwatch.Stop();
-
-                Console.WriteLine($"Finished in {stopwatch.Elapsed}");
-
-                if (puzzle != null)
-                {
-                    Console.WriteLine("Result:\n");
-                    Utils.WritePuzzle(puzzle);
-
-                    Console.WriteLine();
-                }
-                else
-                {
-                    Console.WriteLine("No matching puzzles found.\n");
-                }
+                stream?.Dispose();
             }
         }
 

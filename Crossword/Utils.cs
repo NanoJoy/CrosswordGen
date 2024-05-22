@@ -6,7 +6,7 @@ namespace Crossword
 {
     public static class Utils
     {
-        private static TextWriter TextWriter { get; set; }
+        private static StreamWriter TextWriter { get; set; }
 
         public static void WritePuzzle(char[][] puzzle)
         {
@@ -31,9 +31,11 @@ namespace Crossword
             if (TextWriter != null)
             {
                 TextWriter.Close();
+                TextWriter.Dispose();
             }
 
             TextWriter = new StreamWriter(stream);
+            TextWriter.AutoFlush = true;
         }
     }
 }
