@@ -1,6 +1,6 @@
 ﻿namespace Crossword
 {
-    record WordScore
+    public record WordScore
     {
         public string Word { get; }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Crossword
 {
-    record LetterCriterion
+    public record LetterCriterion
     {
         public int Position { get; }
 

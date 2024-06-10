@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.34114.132
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crossword", "Crossword\Crossword.csproj", "{27559E85-6008-4D72-A0CB-62F907F15569}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crossword", "Crossword\Crossword.csproj", "{27559E85-6008-4D72-A0CB-62F907F15569}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossWeb", "CrossWeb\CrossWeb.csproj", "{1DBD1F1E-1F4C-4560-95D0-86D2E128886C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{27559E85-6008-4D72-A0CB-62F907F15569}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27559E85-6008-4D72-A0CB-62F907F15569}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27559E85-6008-4D72-A0CB-62F907F15569}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DBD1F1E-1F4C-4560-95D0-86D2E128886C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DBD1F1E-1F4C-4560-95D0-86D2E128886C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DBD1F1E-1F4C-4560-95D0-86D2E128886C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DBD1F1E-1F4C-4560-95D0-86D2E128886C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

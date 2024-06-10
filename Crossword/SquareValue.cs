@@ -1,6 +1,6 @@
 ﻿namespace Crossword
 {
-    class SquareValue
+    public class SquareValue
     {
         public Coordinate Coordinate { get; }
 

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Crossword
 {
-    class CrosswordGenerator
+    public class CrosswordGenerator
     {
         private const char Empty = '-';
 
@@ -59,7 +58,7 @@ namespace Crossword
             GenerationContext winningContext = null;
             var tracker = new ParallelTracker();
 
-            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
 
             Parallel.ForEach(wordsToTry, parallelOptions, (word) =>
             {
@@ -450,6 +449,8 @@ namespace Crossword
                     return ShuffleWords(words);
                 case WordTryOrder.HighestScore:
                     return GetWordsOrderedByScore(words);
+                case WordTryOrder.Balanced:
+                    return GetWordsSemiShuffled(words);
             }
 
             return Array.Empty<string>();
@@ -474,6 +475,24 @@ namespace Crossword
         private static string[] GetWordsOrderedByScore(List<WordScore> words)
         {
             return words.OrderByDescending(w => w.Score).Select(w => w.Word).ToArray();
+        }
+
+        private string[] GetWordsSemiShuffled(List<WordScore> words)
+        {
+            var ordered = GetWordsOrderedByScore(words);
+
+            var shuffleWidth = Math.Min(ordered.Length / 3, 10);
+
+            for (int i = 0; i < ordered.Length - shuffleWidth; i++)
+            {
+                var swapIndex = Random.Next(0, shuffleWidth);
+
+                var temp = ordered[swapIndex];
+                ordered[swapIndex] = ordered[i];
+                ordered[i] = temp;
+            }
+
+            return ordered;
         }
     }
 }

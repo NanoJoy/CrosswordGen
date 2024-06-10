@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Crossword
 {
-    class WordFilter
+    public class WordFilter
     {
         private const int MaxNumLetters = 15;
 

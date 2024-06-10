@@ -1,6 +1,6 @@
 ﻿namespace Crossword
 {
-    class Coordinate
+    public class Coordinate
     {
         public int I { get; }
 

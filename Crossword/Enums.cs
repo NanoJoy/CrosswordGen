@@ -9,6 +9,7 @@ namespace Crossword
     public enum WordTryOrder
     {
         Random,
-        HighestScore
+        HighestScore,
+        Balanced
     }
 }

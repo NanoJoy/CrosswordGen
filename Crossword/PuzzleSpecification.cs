@@ -1,6 +1,6 @@
 ﻿namespace Crossword
 {
-    record PuzzleSpecification
+    public record PuzzleSpecification
     {
         public int Width { get; }
 

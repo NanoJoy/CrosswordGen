@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Crossword
 {
-    class WordCriteria
+    public class WordCriteria
     {
         private int _numFilledLetters;
 

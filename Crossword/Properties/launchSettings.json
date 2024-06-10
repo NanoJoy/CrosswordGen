@@ -2,7 +2,7 @@
   "profiles": {
     "Crossword": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\Projects\\crossword\\crosswordlist.txt\" \"D:\\Projects\\crossword\\specsmd.txt\" \"D:\\Projects\\crossword\\Output\""
+      "commandLineArgs": "\"D:\\Projects\\crossword\\crosswordlist.txt\" \"D:\\Projects\\crossword\\specssat.txt\" \"D:\\Projects\\crossword\\Output\" \"HighestScore\""
     }
   }
 }
