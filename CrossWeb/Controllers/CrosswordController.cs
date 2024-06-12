@@ -1,7 +1,7 @@
 using CrossWeb.Models;
-using Microsoft.AspNetCore.Mvc;
+using CrossWeb.Providers;
 using Crossword;
-using System.Reflection.PortableExecutable;
+using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
 namespace CrossWeb.Controllers
@@ -12,16 +12,18 @@ namespace CrossWeb.Controllers
     {
         private readonly ILogger<CrosswordController> _logger;
 
-        public CrosswordController(ILogger<CrosswordController> logger)
+        private readonly IWordFilterProvider _wordFilterProvider;
+
+        public CrosswordController(ILogger<CrosswordController> logger, IWordFilterProvider wordFilterProvider)
         {
             _logger = logger;
+            _wordFilterProvider = wordFilterProvider;
         }
 
         [HttpPost(Name = "DetermineCrosswordGrid")]
         public CrosswordGenerationResponse Post([FromBody] CrosswordGenerationRequest request)
         {
-            var filter = new WordFilter(@"D:\Projects\crossword\crosswordlist.txt");
-            var generator = new CrosswordGenerator(filter, request.Grid.Length, request.Grid[0].Length, request.WordTryOrder);
+            var generator = new CrosswordGenerator(_wordFilterProvider.Filter, request.Grid.Length, request.Grid[0].Length, request.WordTryOrder);
             var puzzleSpce = GetPuzzleSpec(request.Grid);
 
             var puzzle = generator.GenerateCrossword(puzzleSpce.ExistingValues);
@@ -48,7 +50,7 @@ namespace CrossWeb.Controllers
                 {
                     var c = line[j];
 
-                    if (c == '#' || c >= 'A' || c <= 'Z')
+                    if (c == Constants.BoardSymbols.Black || c >= 'A' || c <= 'Z')
                     {
                         values.Add(new SquareValue(i, j, c));
                     }

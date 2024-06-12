@@ -7,9 +7,6 @@ namespace Crossword
 {
     public class CrosswordGenerator
     {
-        private const char Empty = '-';
-
-        private const char Black = '#';
 
         private object Lock { get; } = new object();
 
@@ -126,7 +123,7 @@ namespace Crossword
                     throw new Exception($"Provided j coordinate {squareValue.Coordinate.J} is greater than width {Width}.");
                 }
 
-                if (squareValue.Value != Black && squareValue.Value != Empty && (squareValue.Value < 'A' && squareValue.Value > 'Z'))
+                if (squareValue.Value != Constants.BoardSymbols.Black && squareValue.Value != Constants.BoardSymbols.Empty && (squareValue.Value < 'A' && squareValue.Value > 'Z'))
                 {
                     throw new Exception($"Provided value for {squareValue.Coordinate.I},{squareValue.Coordinate.J}: {squareValue.Value} is not valid.");
                 }
@@ -144,7 +141,7 @@ namespace Crossword
 
                 for (int x = 0; x < Width; x++)
                 {
-                    if (context.Puzzle[y][x] == Black)
+                    if (context.Puzzle[y][x] == Constants.BoardSymbols.Black)
                     {
                         inWord = false;
                         context.HorizontalWordStarts[y][x] = -1;
@@ -168,7 +165,7 @@ namespace Crossword
 
                 for (int y = 0; y < Height; y++)
                 {
-                    if (context.Puzzle[y][x] == Black)
+                    if (context.Puzzle[y][x] == Constants.BoardSymbols.Black)
                     {
                         inWord = false;
                         context.VerticalWordStarts[y][x] = -1;
@@ -337,7 +334,7 @@ namespace Crossword
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    if (context.Puzzle[y][x] != Empty)
+                    if (context.Puzzle[y][x] != Constants.BoardSymbols.Empty)
                     {
                         continue;
                     }
@@ -389,7 +386,7 @@ namespace Crossword
                 var wordStart = context.HorizontalWordStarts[i][j];
                 for (int x = 0; x < word.Length; x++)
                 {
-                    if (context.Puzzle[i][x + wordStart] == Empty)
+                    if (context.Puzzle[i][x + wordStart] == Constants.BoardSymbols.Empty)
                     {
                         context.Puzzle[i][x + wordStart] = word[x];
                         context.HorizontalCriteria[i][j].SetLetter(x, word[x]);
@@ -404,7 +401,7 @@ namespace Crossword
 
                 for (int y = 0; y < word.Length; y++)
                 {
-                    if (context.Puzzle[y + wordStart][j] == Empty)
+                    if (context.Puzzle[y + wordStart][j] == Constants.BoardSymbols.Empty)
                     {
                         context.Puzzle[y + wordStart][j] = word[y];
                         context.VerticalCriteria[i][j].SetLetter(y, word[y]);
@@ -423,11 +420,11 @@ namespace Crossword
             {
                 var i = spaces[m].I;
                 var j = spaces[m].J;
-                context.Puzzle[i][j] = Empty;
+                context.Puzzle[i][j] = Constants.BoardSymbols.Empty;
                 var horizontalWordStart = context.HorizontalWordStarts[i][j];
                 var verticalWordStart = context.VerticalWordStarts[i][j];
-                context.HorizontalCriteria[i][j].SetLetter(j - horizontalWordStart, Empty);
-                context.VerticalCriteria[i][j].SetLetter(i - verticalWordStart, Empty);
+                context.HorizontalCriteria[i][j].SetLetter(j - horizontalWordStart, Constants.BoardSymbols.Empty);
+                context.VerticalCriteria[i][j].SetLetter(i - verticalWordStart, Constants.BoardSymbols.Empty);
             }
         }
 

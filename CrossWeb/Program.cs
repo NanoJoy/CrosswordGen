@@ -1,4 +1,6 @@
 
+using CrossWeb.Providers;
+
 namespace CrossWeb
 {
     public class Program
@@ -13,6 +15,7 @@ namespace CrossWeb
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddSingleton<IWordFilterProvider, WordFilterProvider>();
 
             var app = builder.Build();
 

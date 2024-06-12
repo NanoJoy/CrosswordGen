@@ -31,6 +31,17 @@ namespace CrossWeb.Validation
                 {
                     return new ValidationResult($"All rows must match width of first row: {width}");
                 }
+
+                foreach (var c in row)
+                {
+                    if (c != Crossword.Constants.BoardSymbols.Empty 
+                        && c !=  Crossword.Constants.BoardSymbols.Black
+                        && !(c >= 'a' && c <= 'z')
+                        && !(c >= 'A' && c <= 'Z'))
+                    {
+                        return new ValidationResult($"Character {c} is not valid.");
+                    }
+                }
             }
 
             return ValidationResult.Success;
