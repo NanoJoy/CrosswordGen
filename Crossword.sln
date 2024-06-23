@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.34114.132
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35004.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crossword", "Crossword\Crossword.csproj", "{27559E85-6008-4D72-A0CB-62F907F15569}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossWeb", "CrossWeb\CrossWeb.csproj", "{1DBD1F1E-1F4C-4560-95D0-86D2E128886C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrossWeb", "CrossWeb\CrossWeb.csproj", "{1DBD1F1E-1F4C-4560-95D0-86D2E128886C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2F1807A0-15C8-462C-BFDB-21D001F03E20}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile = Dockerfile
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
