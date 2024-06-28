@@ -19,6 +19,43 @@ namespace Crossword
 
         private Dictionary<string, WordScore> Scores { get; }
 
+        public WordFilter(Stream stream)
+        {
+            LetterFilters = new LetterFilter[MaxNumLetters];
+
+            WordsByLength = new HashSet<string>[MaxNumLetters];
+
+            for (int i = 0; i < MaxNumLetters; i++)
+            {
+                LetterFilters[i] = new LetterFilter(i);
+                WordsByLength[i] = new HashSet<string>();
+            }
+
+            AllWords = new List<string>();
+
+            Scores = new Dictionary<string, WordScore>();
+
+            using var streamReader = new StreamReader(stream);
+
+            while (!streamReader.EndOfStream)
+            {
+                var line = streamReader.ReadLine();
+
+                if (TryGetWord(line, out var word, out var score))
+                {
+                    AllWords.Add(word);
+
+                    for (int i = 0; i < MaxNumLetters; i++)
+                    {
+                        LetterFilters[i].AddWord(word);
+                    }
+
+                    WordsByLength[word.Length - 1].Add(word);
+                    Scores[word] = new WordScore(word, score);
+                }
+            }
+        }
+
         public WordFilter(string filePath)
         {
             LetterFilters = new LetterFilter[MaxNumLetters];
@@ -36,7 +73,6 @@ namespace Crossword
             Scores = new Dictionary<string, WordScore>();
 
             using var stream = File.OpenRead(filePath);
-
             using var streamReader = new StreamReader(stream);
 
             while (!streamReader.EndOfStream)
