@@ -22,8 +22,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build-env /src/CrossWeb/out .
 
-# Step 6: Expose port 5133
-EXPOSE 5133
+# Step 6: Expose port 8080
+EXPOSE 8080
 
 # Step 7: Set the entry point for the application
 ENTRYPOINT ["dotnet", "CrossWeb.dll"]

@@ -26,6 +26,12 @@ namespace CrossWeb
                 app.UseSwaggerUI();
             }
 
+            var port = Environment.GetEnvironmentVariable("PORT");
+            if (!string.IsNullOrEmpty(port))
+            {
+                app.Urls.Add($"http://*:{port}");
+            }
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
